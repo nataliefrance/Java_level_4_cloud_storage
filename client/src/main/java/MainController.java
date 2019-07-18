@@ -4,6 +4,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
@@ -20,11 +24,25 @@ public class MainController implements Initializable {
 
     @FXML
     ListView<String> clientFileList;
+
     @FXML
     ListView<String> serverFileList;
 
+    @FXML
+    HBox cloudPanel;
+
+    @FXML
+    VBox authPanel;
+
+    @FXML
+    TextField loginField;
+
+    @FXML
+    PasswordField passwordField;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        setAuthorized(false);
         Network.start();
         Network.sendMsg(new RefreshServerMessage());
 
@@ -51,6 +69,30 @@ public class MainController implements Initializable {
         thread.setDaemon(true);
         thread.start();
         refreshLocalFilesList();
+    }
+
+    private void setAuthorized(boolean isAuthorized) {
+        if (!isAuthorized) {
+            authPanel.setVisible(true);
+            authPanel.setManaged(true);
+            cloudPanel.setVisible(false);
+            cloudPanel.setManaged(false);
+        } else {
+            authPanel.setVisible(false);
+            authPanel.setManaged(false);
+            cloudPanel.setVisible(true);
+            cloudPanel.setManaged(true);
+        }
+    }
+
+    public void tryToAuth(ActionEvent actionEvent) {
+        try {
+            Network.out.writeUTF("/auth " + loginField.getText() + " " + passwordField.getText());
+            loginField.clear();
+            passwordField.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void pressOnDownloadButton(ActionEvent actionEvent) {

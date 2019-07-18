@@ -6,11 +6,39 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Font?>
-<VBox fx:id="rootNode" alignment="CENTER" prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);"
+<VBox fx:id="rootNode" alignment="CENTER" prefHeight="400.0" prefWidth="500.0" style="-fx-background-image: url(background.jpg);"
       xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.172-ea" fx:controller="MainController">
 
-    <HBox alignment="CENTER">
+    <VBox fx:id="authPanel" alignment="center" >
+        <Label alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
+               text="Введите логин и пароль" HBox.hgrow="ALWAYS">
+            <font>
+                <Font name="Arial Bold" size="16.0"/>
+            </font>
+        </Label>
+            <VBox.margin>
+                <Insets bottom="15.0" />
+            </VBox.margin>
+
+        <TextField HBox.hgrow="ALWAYS" maxWidth="200" promptText="Логин" fx:id="loginField">
+            <VBox.margin>
+                <Insets bottom="15.0" />
+            </VBox.margin></TextField>
+        <PasswordField promptText="Пароль" fx:id="passwordField"  maxWidth="200" onAction="#tryToAuth"/>
+        <Button onAction="#tryToAuth" text="Войти" prefWidth="200">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+            <VBox.margin>
+                <Insets top="15.0" />
+            </VBox.margin>
+        </Button>
+    </VBox>
+
+    <HBox alignment="CENTER" fx:id="cloudPanel" managed="false" visible="false">
         <VBox fx:id="clientSide">
             <Label fx:id="labelClientFiles" alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
             text="Файлы клиента" HBox.hgrow="ALWAYS">

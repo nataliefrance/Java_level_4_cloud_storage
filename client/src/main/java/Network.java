@@ -6,8 +6,8 @@ import java.net.Socket;
 
 class Network {
     private static Socket socket;
-    private static ObjectEncoderOutputStream out; //сериализует объект
-    private static ObjectDecoderInputStream in; //десериализует объект
+    static ObjectEncoderOutputStream out; //сериализует объект
+    static ObjectDecoderInputStream in; //десериализует объект
 
     static void start() {
         try {
@@ -15,6 +15,7 @@ class Network {
             System.out.println("Клиент подключился");
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 100 * 1024 * 1024);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,4 +53,6 @@ class Network {
         Object obj = in.readObject(); //получает файл с сервера
         return (AbstractMessage) obj;
     }
+
+
 }
