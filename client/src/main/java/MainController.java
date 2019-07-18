@@ -2,34 +2,44 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
-    @FXML
-    TextField tfFileName;
 
     @FXML
-    ListView<String> filesList;
+    Button deleteFromClient, deleteFromServer;
+
+    @FXML
+    ListView<String> clientFileList;
+    @FXML
+    ListView<String> serverFileList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
+        Network.sendMsg(new RefreshServerMessage());
+
         Thread thread = new Thread(() -> {
             try {
                 while (true) {
                     AbstractMessage abstractMessage = Network.readObject();
                     if (abstractMessage instanceof FileMessage) {
-                        FileMessage fm = (FileMessage) abstractMessage;
-                        Files.write(Paths.get("client_storage/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                        FileMessage fileMessage = (FileMessage) abstractMessage;
+                        Files.write(Paths.get("client_storage/" + fileMessage.getFilename()), fileMessage.getData(), StandardOpenOption.CREATE); //StandardOpenOption.CREATE всегда оздаёт/перезаписывает новые объекты
                         refreshLocalFilesList();
+                    }
+                    if (abstractMessage instanceof RefreshServerMessage){
+                        RefreshServerMessage refreshServerMsg = (RefreshServerMessage) abstractMessage;
+                        refreshServerFilesList(refreshServerMsg.getServerFileList());
                     }
                 }
             } catch (ClassNotFoundException | IOException ex) {
@@ -43,25 +53,53 @@ public class MainController implements Initializable {
         refreshLocalFilesList();
     }
 
-    public void pressOnDownloadBtn(ActionEvent actionEvent) {
-        if (tfFileName.getLength() > 0) {
-            Network.sendMsg(new FileRequest(tfFileName.getText()));
-            tfFileName.clear();
+    public void pressOnDownloadButton(ActionEvent actionEvent) {
+            Network.sendMsg(new DownloadRequest(serverFileList.getSelectionModel().getSelectedItem()));
+    }
+
+    public void pressOnSendToCloudButton(ActionEvent actionEvent){
+        try {
+            Network.sendMsg(new FileMessage(Paths.get("client_storage/" + clientFileList.getSelectionModel().getSelectedItem())));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public void refreshLocalFilesList() {
+    public void pressOnDeleteButton(ActionEvent actionEvent){
+        Button sourceButton = (Button) actionEvent.getSource();
+
+        if (deleteFromClient.equals(sourceButton)){
+            try {
+                Files.delete(Paths.get("client_storage/" + clientFileList.getSelectionModel().getSelectedItem()));
+                refreshLocalFilesList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (deleteFromServer.equals(sourceButton)){
+            Network.sendMsg(new DeleteRequest(serverFileList.getSelectionModel().getSelectedItem()));
+        }
+    }
+
+    private void refreshLocalFilesList() {
         updateUI(() -> {
             try {
-                filesList.getItems().clear();
-                Files.list(Paths.get("client_storage")).map(p -> p.getFileName().toString()).forEach(o -> filesList.getItems().add(o));
+                clientFileList.getItems().clear();
+                Files.list(Paths.get("client_storage")).map(p -> p.getFileName().toString()).forEach(o -> clientFileList.getItems().add(o));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    public static void updateUI(Runnable runnable) {
+    private void refreshServerFilesList(ArrayList<String> filesList){
+        updateUI(() -> {
+            serverFileList.getItems().clear();
+            serverFileList.getItems().addAll(filesList);
+        });
+    }
+
+    private static void updateUI(Runnable runnable) {
         if (Platform.isFxApplicationThread()) {
             runnable.run();
         } else {

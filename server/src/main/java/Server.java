@@ -11,7 +11,7 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
 public class Server {
-    public void run() throws Exception {
+    private void run() throws Exception {
         EventLoopGroup mainGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try{
@@ -21,9 +21,10 @@ public class Server {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline().addLast(
-                                    new ObjectDecoder(50 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
-                                    new ObjectEncoder(),
-                                    new MainHandler()
+                                    //максимальный размер объекта, который мы можем прочитать 100 Мб:
+                                    new ObjectDecoder(50 * 1024 * 1024, ClassResolvers.cacheDisabled(null)), //ловит набор байтов и восстанавливает из них объект
+                                    new ObjectEncoder(), //получает объект и делает из него набор байт
+                                    new ServerMainHandler()
                             );
                         }
                     })

@@ -5,11 +5,36 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ListView?>
-<VBox fx:id="rootNode" alignment="CENTER" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);"
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.text.Font?>
+<VBox fx:id="rootNode" alignment="CENTER" prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);"
       xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.172-ea" fx:controller="MainController">
-    <HBox>
-        <TextField fx:id="tfFileName" focusTraversable="false" promptText="Укажите имя файла на сервере, который хотите скачать" HBox.hgrow="ALWAYS" />
-        <Button onAction="#pressOnDownloadBtn" text="Скачать" />
+
+    <HBox alignment="CENTER">
+        <VBox fx:id="clientSide">
+            <Label fx:id="labelClientFiles" alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
+            text="Файлы клиента" HBox.hgrow="ALWAYS">
+            </Label>
+
+            <ListView fx:id="clientFileList" VBox.vgrow="ALWAYS" />
+            <HBox>
+                <Button onAction="#pressOnSendToCloudButton" text="Отправить в облако" />
+                <Button fx:id="deleteFromClient" onAction="#pressOnDeleteButton" text="Удалить" />
+            </HBox>
+
+        </VBox>
+
+        <VBox fx:id="serverSide">
+            <Label fx:id="labelServerFiles" alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
+                   text="Файлы в облаке" HBox.hgrow="ALWAYS">
+            </Label>
+
+            <ListView fx:id="serverFileList" VBox.vgrow="ALWAYS" />
+            <HBox>
+                <Button onAction="#pressOnDownloadButton" text="Скачать" />
+                <Button fx:id="deleteFromServer" onAction="#pressOnDeleteButton" text="Удалить" />
+            </HBox>
+        </VBox>
+
     </HBox>
-    <ListView fx:id="filesList" VBox.vgrow="ALWAYS" />
 </VBox>

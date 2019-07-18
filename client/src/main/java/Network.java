@@ -4,23 +4,23 @@ import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Network {
+class Network {
     private static Socket socket;
-    private static ObjectEncoderOutputStream out;
-    private static ObjectDecoderInputStream in;
+    private static ObjectEncoderOutputStream out; //сериализует объект
+    private static ObjectDecoderInputStream in; //десериализует объект
 
-    public static void start() {
+    static void start() {
         try {
             socket = new Socket("localhost", 8190);
             System.out.println("Клиент подключился");
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
-            in = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
+            in = new ObjectDecoderInputStream(socket.getInputStream(), 100 * 1024 * 1024);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void stop() {
+    static void stop() {
         try {
             out.close();
         } catch (IOException e) {
@@ -38,9 +38,9 @@ public class Network {
         }
     }
 
-    public static boolean sendMsg(AbstractMessage msg) {
+    static boolean sendMsg(AbstractMessage msg) {
         try {
-            out.writeObject(msg);
+            out.writeObject(msg); //отправляет файл на сервер
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,8 +48,8 @@ public class Network {
         return false;
     }
 
-    public static AbstractMessage readObject() throws ClassNotFoundException, IOException {
-        Object obj = in.readObject();
+    static AbstractMessage readObject() throws ClassNotFoundException, IOException {
+        Object obj = in.readObject(); //получает файл с сервера
         return (AbstractMessage) obj;
     }
 }
