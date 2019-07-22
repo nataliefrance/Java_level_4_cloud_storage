@@ -22,19 +22,21 @@ public class Server {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline().addLast(
                                     //максимальный размер объекта, который мы можем прочитать 100 Мб:
-                                    new ObjectDecoder(50 * 1024 * 1024, ClassResolvers.cacheDisabled(null)), //ловит набор байтов и восстанавливает из них объект
+                                    new ObjectDecoder(100 * 1024 * 1024, ClassResolvers.cacheDisabled(null)), //ловит набор байтов и восстанавливает из них объект
                                     new ObjectEncoder(), //получает объект и делает из него набор байт
-                                    new ServerMainHandler()
+                                    new AuthHandler()
                             );
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture future = bootstrap.bind(8190).sync();
+            DataBaseService.connect();
             System.out.println("Сервер подключился");
             future.channel().closeFuture().sync();
         } finally {
             mainGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
+            DataBaseService.disconnect();
         }
     }
 

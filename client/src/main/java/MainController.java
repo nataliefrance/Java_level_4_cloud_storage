@@ -2,10 +2,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -44,10 +41,19 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         setAuthorized(false);
         Network.start();
-        Network.sendMsg(new RefreshServerMessage());
 
         Thread thread = new Thread(() -> {
             try {
+                while (true) {
+                    AbstractMessage abstractMessage = Network.readObject();
+                    if (abstractMessage instanceof AuthMessage) {
+                        setAuthorized(true);
+                        break;
+                    }
+                }
+
+                Network.sendMsg(new RefreshServerMessage());
+
                 while (true) {
                     AbstractMessage abstractMessage = Network.readObject();
                     if (abstractMessage instanceof FileMessage) {
@@ -55,7 +61,7 @@ public class MainController implements Initializable {
                         Files.write(Paths.get("client_storage/" + fileMessage.getFilename()), fileMessage.getData(), StandardOpenOption.CREATE); //StandardOpenOption.CREATE всегда оздаёт/перезаписывает новые объекты
                         refreshLocalFilesList();
                     }
-                    if (abstractMessage instanceof RefreshServerMessage){
+                    if (abstractMessage instanceof RefreshServerMessage) {
                         RefreshServerMessage refreshServerMsg = (RefreshServerMessage) abstractMessage;
                         refreshServerFilesList(refreshServerMsg.getServerFileList());
                     }
@@ -85,21 +91,17 @@ public class MainController implements Initializable {
         }
     }
 
-    public void tryToAuth(ActionEvent actionEvent) {
-        try {
-            Network.out.writeUTF("/auth " + loginField.getText() + " " + passwordField.getText());
-            loginField.clear();
-            passwordField.clear();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void tryToAuth() {
+        Network.sendMsg(new AuthMessage(loginField.getText(), passwordField.getText()));
+        loginField.clear();
+        passwordField.clear();
     }
 
     public void pressOnDownloadButton(ActionEvent actionEvent) {
-            Network.sendMsg(new DownloadRequest(serverFileList.getSelectionModel().getSelectedItem()));
+        Network.sendMsg(new DownloadRequest(serverFileList.getSelectionModel().getSelectedItem()));
     }
 
-    public void pressOnSendToCloudButton(ActionEvent actionEvent){
+    public void pressOnSendToCloudButton(ActionEvent actionEvent) {
         try {
             Network.sendMsg(new FileMessage(Paths.get("client_storage/" + clientFileList.getSelectionModel().getSelectedItem())));
         } catch (IOException e) {
@@ -107,10 +109,10 @@ public class MainController implements Initializable {
         }
     }
 
-    public void pressOnDeleteButton(ActionEvent actionEvent){
+    public void pressOnDeleteButton(ActionEvent actionEvent) {
         Button sourceButton = (Button) actionEvent.getSource();
 
-        if (deleteFromClient.equals(sourceButton)){
+        if (deleteFromClient.equals(sourceButton)) {
             try {
                 Files.delete(Paths.get("client_storage/" + clientFileList.getSelectionModel().getSelectedItem()));
                 refreshLocalFilesList();
@@ -118,7 +120,7 @@ public class MainController implements Initializable {
                 e.printStackTrace();
             }
         }
-        if (deleteFromServer.equals(sourceButton)){
+        if (deleteFromServer.equals(sourceButton)) {
             Network.sendMsg(new DeleteRequest(serverFileList.getSelectionModel().getSelectedItem()));
         }
     }
@@ -134,7 +136,7 @@ public class MainController implements Initializable {
         });
     }
 
-    private void refreshServerFilesList(ArrayList<String> filesList){
+    private void refreshServerFilesList(ArrayList<String> filesList) {
         updateUI(() -> {
             serverFileList.getItems().clear();
             serverFileList.getItems().addAll(filesList);

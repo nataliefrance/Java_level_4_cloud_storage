@@ -12,7 +12,6 @@ class Network {
     static void start() {
         try {
             socket = new Socket("localhost", 8190);
-            System.out.println("Клиент подключился");
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 100 * 1024 * 1024);
 
