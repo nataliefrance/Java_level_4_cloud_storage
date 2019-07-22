@@ -20,7 +20,9 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
                 if (userId != null) {
                     authOk = true;
                     ctx.pipeline().addLast(new ServerMainHandler(userId));
-                    ctx.writeAndFlush(new AuthMessage());
+                    ctx.writeAndFlush(new AuthMessage("/authOk"));
+                } else {
+                    ctx.writeAndFlush(new AuthMessage("/null_userId"));
                 }
             }
         } finally {

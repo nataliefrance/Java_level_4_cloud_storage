@@ -37,6 +37,9 @@ public class MainController implements Initializable {
     @FXML
     PasswordField passwordField;
 
+    @FXML
+    Label authLabel;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setAuthorized(false);
@@ -47,8 +50,14 @@ public class MainController implements Initializable {
                 while (true) {
                     AbstractMessage abstractMessage = Network.readObject();
                     if (abstractMessage instanceof AuthMessage) {
-                        setAuthorized(true);
-                        break;
+                        AuthMessage authMessage = (AuthMessage) abstractMessage;
+                        if ("/authOk".equals(authMessage.message)) {
+                            setAuthorized(true);
+                            break;
+                        }
+                        if ("/null_userId".equals(authMessage.message)) {
+                            Platform.runLater(() -> authLabel.setText("Неверный логин или пароль"));
+                        }
                     }
                 }
 

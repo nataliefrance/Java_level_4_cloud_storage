@@ -13,7 +13,7 @@
       xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.172-ea" fx:controller="MainController">
 
     <VBox fx:id="authPanel" alignment="center" >
-        <Label alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
+        <Label fx:id="authLabel" alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
                text="Введите логин и пароль" HBox.hgrow="ALWAYS">
             <font>
                 <Font name="Arial Bold" size="16.0"/>
@@ -40,7 +40,7 @@
 
     <HBox alignment="CENTER" fx:id="cloudPanel" managed="false" visible="false">
         <VBox fx:id="clientSide">
-            <Label fx:id="labelClientFiles" alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
+            <Label alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
             text="Файлы клиента" HBox.hgrow="ALWAYS">
             </Label>
 
@@ -53,7 +53,7 @@
         </VBox>
 
         <VBox fx:id="serverSide">
-            <Label fx:id="labelServerFiles" alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
+            <Label alignment="CENTER" maxWidth="Infinity" minHeight="36" prefHeight="36"
                    text="Файлы в облаке" HBox.hgrow="ALWAYS">
             </Label>
 
